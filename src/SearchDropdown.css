@@ -1,0 +1,33 @@
+.search--container{
+  position: relative;
+}
+
+.search-option--active,
+.search-option:hover{
+  color: white;
+  background-color: green;
+}
+
+.search-option{
+  display: block;
+  height: 25px;
+}
+
+.search-options--container {
+  position: absolute;
+  width: 100%;
+  z-index: 10;
+  max-height: 200px;
+  padding: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  list-style: none;
+  background: white;
+  border: 1px solid #bfbfbf;
+  margin-top: 0;
+  cursor: default;
+}
+
+.search-options--container strong {
+  color: #2a2a2a
+}

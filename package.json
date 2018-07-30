@@ -1,0 +1,24 @@
+{
+  "name": "search-dropdown",
+  "version": "1.0.0",
+  "description": "search dropdown, support all browsers using react",
+  "main": "index.js",
+  "scripts": {
+    "test": "yarn test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/linchen2chris/search-dropdown.git"
+  },
+  "keywords": [
+    "search",
+    "input",
+    "dropdown"
+  ],
+  "author": "Lin Chen <lc1990linux@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/linchen2chris/search-dropdown/issues"
+  },
+  "homepage": "https://github.com/linchen2chris/search-dropdown#readme"
+}

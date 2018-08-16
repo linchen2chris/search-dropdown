@@ -1,46 +1,38 @@
-import './SearchDropdown.css';
-
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 
 const optionHeight = 25;
 class SearchDropdown extends Component {
   constructor(props) {
     super(props);
+    this.input = React.createRef();
+    this.dropdown = React.createRef();
     this.state = {
-      keyword: '',
+      filteredOptions: [],
+      options: [],
       activeIndex: -1,
       showOptions: false
     };
   }
 
-  componentWillMount() {
-    if (this.props.value && this.props.value.length >= this.props.minLength) {
-      this.setState({
-        keyword: this.props.value
-      });
-    }
-    this.props.fetchResult(this.props.value);
-  }
-  componentWillUnmount() {
-    if (this.state.keyword) {
-      this.props.onChange(this.state.keyword);
-    }
-  }
   onChange(value) {
-    if (typeof this.props.value !== 'undefined') {
-      this.props.onChange(this.state.keyword);
-    }
-    if (value.length >= this.props.minHeight) {
+    this.props.onChange(value);
+    if (value.length < this.props.minLength) {
       this.setState({
-        keyword: value,
+        showOptions: false
+      });
+    } else if (value.length === this.props.minLength) {
+      const options = this.props.fetchResult();
+      this.setState({
+        options,
+        filteredOptions: options,
         showOptions: true
       });
     } else {
-      this.setState({
-        showOptions: false,
-        keyword: value,
-        activeIndex: -1
-      });
+      const filteredOptions = this.state.options.filter(
+        val => val.match(value) !== null
+      );
+      this.setState({ filteredOptions });
     }
   }
   onSelect(value) {
@@ -48,22 +40,39 @@ class SearchDropdown extends Component {
       return;
     }
     this.setState({
-      keyword: value,
       showOptions: false
     });
-    this.props.onSelect(value);
+    this.props.onChange(value);
   }
   onBlur() {
     setTimeout(() => {
-      if (this.input) {
-        this.setState({
-          keyword: this.input.value,
-          showOptions: false,
-          activeIndex: -1
-        });
-        this.props.onChange(this.input.value);
-      }
+      this.setState({ showOptions: false, activeIndex: -1 });
     }, 200);
+  }
+  moveUp() {
+    const totalOptions = this.state.options.length;
+
+    if (this.state.activeIndex > 0) {
+      this.dropdown.current.scrollTop = Math.ceil(
+        this.dropdown.current.scrollTop - optionHeight
+      );
+      this.setState({ activeIndex: this.state.activeIndex - 1 });
+    } else {
+      this.dropdown.current.scrollTop = optionHeight * totalOptions;
+      this.setState({ activeIndex: totalOptions - 1 });
+    }
+  }
+  moveDown() {
+    const totalOptions = this.state.filteredOptions.length;
+
+    if ((this.state.activeIndex + 1) % totalOptions > 7) {
+      this.dropdown.current.scrollTop = Math.ceil(
+        this.dropdown.current.scrollTop + optionHeight
+      );
+    } else {
+      this.dropdown.current.scrollTop = 0;
+    }
+    this.setState({ activeIndex: (this.state.activeIndex + 1) % totalOptions });
   }
   onKeyDown(e) {
     switch (e.keyCode) {
@@ -71,7 +80,7 @@ class SearchDropdown extends Component {
         this.moveUp();
         break;
       case 9: //tab
-        if (this.dropDown) {
+        if (this.dropdown) {
           e.preventDefault();
           if (e.shiftKey) {
             this.moveUp();
@@ -83,83 +92,76 @@ class SearchDropdown extends Component {
       case 40: //down arrow
         this.moveDown();
         break;
-      case 13:
+      case 13: //enter
         if (this.state.activeIndex === -1) {
           return;
         }
-        this.onSelect(this.props.options[this.state.activeIndex]);
+        this.onSelect(this.state.filteredOptions[this.state.activeIndex]);
         break;
       default:
         break;
     }
   }
-
-  moveUp() {
-    const totalOptions = this.props.options.length;
-
-    if (this.state.activeIndex > 0) {
-      this.dropDown.scrollTop = Math.ceil(
-        this.dropDown.scrollTop - optionHeight
-      );
-      this.setState({ activeIndex: this.state.activeIndex - 1 });
-    } else {
-      this.dropDown.scrollTop = optionHeight * totalOptions;
-      this.setState({ activeIndex: totalOptions - 1 });
-    }
-  }
-  moveDown() {
-    const totalOptions = this.props.options.length;
-
-    if ((this.state.activeIndex + 1) % totaOptions > 7) {
-      this.dropDown.scrollTop = Math.ceil(
-        this.dropDown.scrollTop + optionHeight
-      );
-    } else {
-      this.dropDown.scrollTop = 0;
-    }
-    this.setState({ activeIndex: (this.state.activeIndex + 1) % totalOptions });
-  }
-
   highlight(option, keyword) {
     return option !== this.props.noResults
       ? option.replace(new RegExp(keyword, 'igm'), '<strong>$&</strong>')
       : option;
   }
+
   render() {
+    const { classes } = this.props;
     return (
-      <div className="search--container" onBlur={this.onBlur}>
+      <div className={classes.root} onBlur={() => this.onBlur()}>
         <input
           id={this.props.id}
+          className={classes.input}
           name={this.props.name}
           type="text"
-          value={this.state.keyword}
+          value={this.props.value}
           placeholder="Search..."
-          ref={input => (this.input = input)}
+          ref={this.input}
+          onKeyDown={e => this.onKeyDown(e)}
+          onChange={e => this.onChange(e.target.value)}
         />
-        {this.props.options.length > 0 &&
+        {this.state.filteredOptions.length >= 0 &&
           this.state.showOptions && (
-            <div
-              class="search-options--container"
-              ref={dropDown => (this.dropDown = dropDown)}
-            />
+            <div className={classes.dropdown} ref={this.dropdown}>
+              {this.state.filteredOptions.length === 0 && (
+                <li className={classes.option}>
+                  <strong>{this.props.noResult}</strong>
+                </li>
+              )}
+              {this.state.filteredOptions.map((option, index) => (
+                <li
+                  id={`${this.props.id}-option${index}`}
+                  className={
+                    this.state.activeIndex === index
+                      ? classes.optionActive
+                      : classes.option
+                  }
+                  key={index}
+                  onClick={() => this.onSelect(option)}
+                >
+                  <span
+                    dangerouslySetInnerHTML={{
+                      __html: this.highlight(option, this.props.value.trim())
+                    }}
+                  />
+                </li>
+              ))}
+            </div>
           )}
-        {this.props.options.map((option, index) => (
-          <li
-            id={`${this.props.id}-option${index}`}
-            className={`search-option ${
-              this.state.activeIndex === index ? 'search-option--active' : ''
-            }`}
-            key={index}
-            onClick={() => this.onSelect(option)}
-          >
-            <span
-              dangerouslySetInnerHTML={{
-                __html: this.highlight(option, this.state.keyword.trim())
-              }}
-            />
-          </li>
-        ))}
       </div>
     );
   }
 }
+SearchDropdown.propTypes = {
+  fetchResult: PropTypes.func.isRequired,
+  classes: PropTypes.object,
+  onChange: PropTypes.func,
+  value: PropTypes.string,
+  noResult: PropTypes.string,
+  minLength: PropTypes.number
+};
+
+export default SearchDropdown;

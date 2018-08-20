@@ -15,19 +15,26 @@ class SearchDropdown extends Component {
     };
   }
 
-  onChange(value) {
+  async onChange(value) {
     this.props.onChange(value);
     if (value.length < this.props.minLength) {
       this.setState({
         showOptions: false
       });
     } else if (value.length === this.props.minLength) {
-      const options = this.props.fetchResult();
-      this.setState({
-        options,
-        filteredOptions: options,
-        showOptions: true
-      });
+      try {
+        const options = await this.props.fetchResult();
+        this.setState({
+          options,
+          filteredOptions: options,
+          showOptions: true
+        });
+      } catch (err) {
+        this.setState({
+          filteredOptions: ['search error'],
+          showOptions: true
+        })
+      }
     } else {
       const filteredOptions = this.state.options.filter(
         val => val.match(value) !== null
@@ -76,30 +83,30 @@ class SearchDropdown extends Component {
   }
   onKeyDown(e) {
     switch (e.keyCode) {
-      case 38: //up arrow
-        this.moveUp();
-        break;
-      case 9: //tab
-        if (this.dropdown) {
-          e.preventDefault();
-          if (e.shiftKey) {
-            this.moveUp();
-          } else {
-            this.moveDown();
-          }
+    case 38: //up arrow
+      this.moveUp();
+      break;
+    case 9: //tab
+      if (this.dropdown) {
+        e.preventDefault();
+        if (e.shiftKey) {
+          this.moveUp();
+        } else {
+          this.moveDown();
         }
-        break;
-      case 40: //down arrow
-        this.moveDown();
-        break;
-      case 13: //enter
-        if (this.state.activeIndex === -1) {
-          return;
-        }
-        this.onSelect(this.state.filteredOptions[this.state.activeIndex]);
-        break;
-      default:
-        break;
+      }
+      break;
+    case 40: //down arrow
+      this.moveDown();
+      break;
+    case 13: //enter
+      if (this.state.activeIndex === -1) {
+        return;
+      }
+      this.onSelect(this.state.filteredOptions[this.state.activeIndex]);
+      break;
+    default:
+      break;
     }
   }
   highlight(option, keyword) {
@@ -123,14 +130,14 @@ class SearchDropdown extends Component {
           onKeyDown={e => this.onKeyDown(e)}
           onChange={e => this.onChange(e.target.value)}
         />
-        {this.state.filteredOptions.length >= 0 &&
-          this.state.showOptions && (
-            <div className={classes.dropdown} ref={this.dropdown}>
-              {this.state.filteredOptions.length === 0 && (
-                <li className={classes.option}>
-                  <strong>{this.props.noResult}</strong>
-                </li>
-              )}
+          {this.state.filteredOptions.length >= 0 &&
+            this.state.showOptions && (
+              <div className={classes.dropdown} ref={this.dropdown}>
+                {this.state.filteredOptions.length === 0 && (
+                  <li className={classes.option}>
+                    <strong>{this.props.noResult}</strong>
+                  </li>
+                )}
               {this.state.filteredOptions.map((option, index) => (
                 <li
                   id={`${this.props.id}-option${index}`}
@@ -149,8 +156,8 @@ class SearchDropdown extends Component {
                   />
                 </li>
               ))}
-            </div>
-          )}
+              </div>
+            )}
       </div>
     );
   }

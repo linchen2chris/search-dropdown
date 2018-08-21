@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 
-const optionHeight = 25;
+const optionHeight = 48;
 class SearchDropdown extends Component {
   constructor(props) {
     super(props);
@@ -72,7 +72,7 @@ class SearchDropdown extends Component {
   moveDown() {
     const totalOptions = this.state.filteredOptions.length;
 
-    if ((this.state.activeIndex + 1) % totalOptions > 7) {
+    if ((this.state.activeIndex + 1) % totalOptions >= 5) {
       this.dropdown.current.scrollTop = Math.ceil(
         this.dropdown.current.scrollTop + optionHeight
       );
@@ -83,30 +83,31 @@ class SearchDropdown extends Component {
   }
   onKeyDown(e) {
     switch (e.keyCode) {
-      case 38: //up arrow
-        this.moveUp();
-        break;
-      case 9: //tab
-        if (this.dropdown) {
-          e.preventDefault();
-          if (e.shiftKey) {
-            this.moveUp();
-          } else {
-            this.moveDown();
-          }
+    case 38: //up arrow
+      e.preventDefault();
+      this.moveUp();
+      break;
+    case 9: //tab
+      if (this.dropdown) {
+        e.preventDefault();
+        if (e.shiftKey) {
+          this.moveUp();
+        } else {
+          this.moveDown();
         }
-        break;
-      case 40: //down arrow
-        this.moveDown();
-        break;
-      case 13: //enter
-        if (this.state.activeIndex === -1) {
-          return;
-        }
-        this.onSelect(this.state.filteredOptions[this.state.activeIndex]);
-        break;
-      default:
-        break;
+      }
+      break;
+    case 40: //down arrow
+      this.moveDown();
+      break;
+    case 13: //enter
+      if (this.state.activeIndex === -1) {
+        return;
+      }
+      this.onSelect(this.state.filteredOptions[this.state.activeIndex]);
+      break;
+    default:
+      break;
     }
   }
   highlight(option, keyword) {
@@ -130,14 +131,14 @@ class SearchDropdown extends Component {
           onKeyDown={e => this.onKeyDown(e)}
           onChange={e => this.onChange(e.target.value)}
         />
-        {this.state.filteredOptions.length >= 0 &&
-          this.state.showOptions && (
-            <div className={classes.dropdown} ref={this.dropdown}>
-              {this.state.filteredOptions.length === 0 && (
-                <li className={classes.option}>
-                  <strong>{this.props.noResult}</strong>
-                </li>
-              )}
+          {this.state.filteredOptions.length >= 0 &&
+            this.state.showOptions && (
+              <div className={classes.dropdown} ref={this.dropdown}>
+                {this.state.filteredOptions.length === 0 && (
+                  <li className={classes.option}>
+                    <strong>{this.props.noResult}</strong>
+                  </li>
+                )}
               {this.state.filteredOptions.map((option, index) => (
                 <li
                   id={`${this.props.id}-option${index}`}
@@ -156,8 +157,8 @@ class SearchDropdown extends Component {
                   />
                 </li>
               ))}
-            </div>
-          )}
+              </div>
+            )}
       </div>
     );
   }

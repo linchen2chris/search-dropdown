@@ -37,19 +37,22 @@ class SearchDropdown extends Component {
       }
     } else {
       const filteredOptions = this.state.options.filter(
-        val => val.match(new RegExp(value, 'i')) !== null
+        option => (typeof option === "string" ? option : option.label).match(new RegExp(value, 'i')) !== null
       );
-      this.setState({ filteredOptions });
+      this.setState({
+        filteredOptions,
+        showOptions: true
+      });
     }
   }
-  onSelect(value) {
-    if (value === this.props.noResults) {
+  onSelect(option) {
+    if (option === this.props.noResults) {
       return;
     }
     this.setState({
       showOptions: false
     });
-    this.props.onChange(value);
+    this.props.onSelect(option);
   }
   onBlur() {
     setTimeout(() => {
@@ -152,7 +155,7 @@ class SearchDropdown extends Component {
                 >
                   <span
                     dangerouslySetInnerHTML={{
-                      __html: this.highlight(option, this.props.value.trim())
+                      __html: this.highlight(typeof option === "string" ? option : option.label, this.props.value.trim())
                     }}
                   />
                 </li>
@@ -167,6 +170,7 @@ SearchDropdown.propTypes = {
   fetchResult: PropTypes.func.isRequired,
   classes: PropTypes.object,
   onChange: PropTypes.func,
+  onSelect: PropTypes.func,
   value: PropTypes.string,
   noResult: PropTypes.string,
   minLength: PropTypes.number

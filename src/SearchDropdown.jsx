@@ -19,6 +19,7 @@ class SearchDropdown extends Component {
     this.props.onChange(value);
     if (value.length < this.props.minLength) {
       this.setState({
+        activeIndex: -1,
         showOptions: false
       });
     } else if (value.length === this.props.minLength) {
@@ -39,6 +40,9 @@ class SearchDropdown extends Component {
       const filteredOptions = this.state.options.filter(
         option => (typeof option === "string" ? option : option.label).match(new RegExp(value, 'i')) !== null
       );
+      if (filteredOptions.length === 0) {
+        this.setState({activeIndex: -1});
+      }
       this.setState({
         filteredOptions,
         showOptions: true
@@ -50,6 +54,7 @@ class SearchDropdown extends Component {
       return;
     }
     this.setState({
+      activeIndex: -1,
       showOptions: false
     });
     this.props.onSelect(option);
@@ -60,7 +65,7 @@ class SearchDropdown extends Component {
     }, 200);
   }
   moveUp() {
-    const totalOptions = this.state.options.length;
+    const totalOptions = this.state.filteredOptions.length;
 
     if (this.state.activeIndex > 0) {
       this.dropdown.current.scrollTop = Math.ceil(

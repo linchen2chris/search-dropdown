@@ -22,7 +22,7 @@ class SearchDropdown extends Component {
         activeIndex: -1,
         showOptions: false
       });
-    } else if (value.length === this.props.minLength) {
+    } else if (value.length === this.props.minLength && this.props.value.length < this.props.minLength) {
       try {
         const options = await this.props.fetchResult(value);
         this.setState({

@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
+import _ from 'lodash';
 
 const optionHeight = 48;
 class SearchDropdown extends Component {
@@ -13,40 +14,56 @@ class SearchDropdown extends Component {
       activeIndex: -1,
       showOptions: false
     };
+    this.debounceFetch = _.debounce(this.fetchResult, props.debounce);
   }
 
-  async onChange(value) {
-    this.props.onChange(value);
-    if (value.length < this.props.minLength) {
+  async fetchResult(value) {
+    try {
+      if(value.length === 0) return;
+      const options = await this.props.fetchResult(value);
       this.setState({
-        activeIndex: -1,
-        showOptions: false
+        options,
+        filteredOptions: options,
+        showOptions: true,
       });
-    } else if (value.length === this.props.minLength && this.props.value.length < this.props.minLength) {
-      try {
-        const options = await this.props.fetchResult(value);
-        this.setState({
-          options,
-          filteredOptions: options,
-          showOptions: true
-        });
-      } catch (err) {
-        this.setState({
-          filteredOptions: ['search error'],
-          showOptions: true
-        });
-      }
-    } else {
-      const filteredOptions = this.state.options.filter(
-        option => (typeof option === "string" ? option : option.label).match(new RegExp(value, 'i')) !== null
-      );
-      if (filteredOptions.length === 0) {
-        this.setState({activeIndex: -1});
-      }
+    } catch (err) {
       this.setState({
-        filteredOptions,
+        filteredOptions: ['search error'],
         showOptions: true
       });
+    }
+  }
+
+  filterResult(value) {
+    const filteredOptions = this.state.options.filter(
+      option => (typeof option === "string" ? option : option.label).match(new RegExp(value, 'i')) !== null
+    );
+    if (filteredOptions.length === 0) {
+      this.setState({activeIndex: -1});
+    }
+    this.setState({
+      filteredOptions,
+      showOptions: true
+    });
+  }
+
+  onChange(value) {
+    this.props.onChange(value);
+    if(this.props.debounce) {
+      this.debounceFetch(value);
+      return;
+    }
+    if(this.props.minLength) {
+      if (value.length < this.props.minLength) {
+        this.setState({
+          activeIndex: -1,
+          showOptions: false
+        });
+      } else if (value.length === this.props.minLength && this.props.value.length < this.props.minLength) {
+        this.fetchResult(value);
+      } else {
+        this.filterResult(value);
+      }
     }
   }
   onSelect(option) {
@@ -178,7 +195,8 @@ SearchDropdown.propTypes = {
   onSelect: PropTypes.func,
   value: PropTypes.string,
   noResult: PropTypes.string,
-  minLength: PropTypes.number
+  minLength: PropTypes.number,
+  debounce: PropTypes.number,
 };
 
 export default SearchDropdown;

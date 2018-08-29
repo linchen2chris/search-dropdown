@@ -35,6 +35,7 @@
     "react": "^16.4.2"
   },
   "devDependencies": {
+    "babel-preset-es2017": "^6.24.1",
     "lodash": "^4.17.10"
   }
 }

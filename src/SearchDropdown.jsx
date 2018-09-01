@@ -142,12 +142,12 @@ class SearchDropdown extends Component {
   }
 
   render() {
-    const { classes } = this.props;
+    const { classes, error } = this.props;
     return (
-      <div className={classes.root} onBlur={() => this.onBlur()}>
+      <div className={`${classes.root} ${error ? classes.error : ''}`} onBlur={() => this.onBlur()}>
         <input
           id={this.props.id}
-          className={classes.input}
+          className={`${classes.input} ${error ? classes.error : ''}`}
           name={this.props.name}
           type="text"
           value={this.props.value}
@@ -195,6 +195,7 @@ SearchDropdown.propTypes = {
   onSelect: PropTypes.func,
   value: PropTypes.string,
   noResult: PropTypes.string,
+  error: PropTypes.bool,
   minLength: PropTypes.number,
   debounce: PropTypes.number,
 };

@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import _ from 'lodash';
 
-const optionHeight = 48;
+const optionHeight = 72;
 class SearchDropdown extends Component {
   constructor(props) {
     super(props);
@@ -19,12 +19,12 @@ class SearchDropdown extends Component {
 
   async fetchResult(value) {
     try {
-      if(value.length === 0) return;
+      if (value.length === 0) return;
       const options = await this.props.fetchResult(value);
       this.setState({
         options,
         filteredOptions: options,
-        showOptions: true,
+        showOptions: true
       });
     } catch (err) {
       this.setState({
@@ -36,10 +36,13 @@ class SearchDropdown extends Component {
 
   filterResult(value) {
     const filteredOptions = this.state.options.filter(
-      option => (typeof option === "string" ? option : option.label).match(new RegExp(value, 'i')) !== null
+      option =>
+        (typeof option === 'string' ? option : option.label).match(
+          new RegExp(value, 'i')
+        ) !== null
     );
     if (filteredOptions.length === 0) {
-      this.setState({activeIndex: -1});
+      this.setState({ activeIndex: -1 });
     }
     this.setState({
       filteredOptions,
@@ -49,17 +52,20 @@ class SearchDropdown extends Component {
 
   onChange(value) {
     this.props.onChange(value);
-    if(this.props.debounce) {
+    if (this.props.debounce) {
       this.debounceFetch(value);
       return;
     }
-    if(this.props.minLength) {
+    if (this.props.minLength) {
       if (value.length < this.props.minLength) {
         this.setState({
           activeIndex: -1,
           showOptions: false
         });
-      } else if (value.length === this.props.minLength && this.props.value.length < this.props.minLength) {
+      } else if (
+        value.length === this.props.minLength &&
+        this.props.value.length < this.props.minLength
+      ) {
         this.fetchResult(value);
       } else {
         this.filterResult(value);
@@ -108,31 +114,31 @@ class SearchDropdown extends Component {
   }
   onKeyDown(e) {
     switch (e.keyCode) {
-    case 38: //up arrow
-      e.preventDefault();
-      this.moveUp();
-      break;
-    case 9: //tab
-      if (this.dropdown) {
+      case 38: //up arrow
         e.preventDefault();
-        if (e.shiftKey) {
-          this.moveUp();
-        } else {
-          this.moveDown();
+        this.moveUp();
+        break;
+      case 9: //tab
+        if (this.dropdown) {
+          e.preventDefault();
+          if (e.shiftKey) {
+            this.moveUp();
+          } else {
+            this.moveDown();
+          }
         }
-      }
-      break;
-    case 40: //down arrow
-      this.moveDown();
-      break;
-    case 13: //enter
-      if (this.state.activeIndex === -1) {
-        return;
-      }
-      this.onSelect(this.state.filteredOptions[this.state.activeIndex]);
-      break;
-    default:
-      break;
+        break;
+      case 40: //down arrow
+        this.moveDown();
+        break;
+      case 13: //enter
+        if (this.state.activeIndex === -1) {
+          return;
+        }
+        this.onSelect(this.state.filteredOptions[this.state.activeIndex]);
+        break;
+      default:
+        break;
     }
   }
   highlight(option, keyword) {
@@ -144,7 +150,10 @@ class SearchDropdown extends Component {
   render() {
     const { classes, error } = this.props;
     return (
-      <div className={`${classes.root} ${error ? classes.error : ''}`} onBlur={() => this.onBlur()}>
+      <div
+        className={`${classes.root} ${error ? classes.error : ''}`}
+        onBlur={() => this.onBlur()}
+      >
         <input
           id={this.props.id}
           className={`${classes.input} ${error ? classes.error : ''}`}
@@ -156,14 +165,14 @@ class SearchDropdown extends Component {
           onKeyDown={e => this.onKeyDown(e)}
           onChange={e => this.onChange(e.target.value)}
         />
-          {this.state.filteredOptions.length >= 0 &&
-            this.state.showOptions && (
-              <div className={classes.dropdown} ref={this.dropdown}>
-                {this.state.filteredOptions.length === 0 && (
-                  <li className={classes.option}>
-                    <strong>{this.props.noResult}</strong>
-                  </li>
-                )}
+        {this.state.filteredOptions.length >= 0 &&
+          this.state.showOptions && (
+            <div className={classes.dropdown} ref={this.dropdown}>
+              {this.state.filteredOptions.length === 0 && (
+                <li className={classes.option}>
+                  <strong>{this.props.noResult}</strong>
+                </li>
+              )}
               {this.state.filteredOptions.map((option, index) => (
                 <li
                   id={`${this.props.id}-option${index}`}
@@ -175,15 +184,22 @@ class SearchDropdown extends Component {
                   key={index}
                   onClick={() => this.onSelect(option)}
                 >
-                  <span
+                  <p
+                    className={classes.label}
                     dangerouslySetInnerHTML={{
-                      __html: this.highlight(typeof option === "string" ? option : option.label, this.props.value.trim())
+                      __html: this.highlight(
+                        typeof option === 'string' ? option : option.label,
+                        this.props.value.trim()
+                      )
                     }}
                   />
+                  {option.description && (
+                    <p className={classes.description}>{option.description}</p>
+                  )}
                 </li>
               ))}
-              </div>
-            )}
+            </div>
+          )}
       </div>
     );
   }
@@ -197,7 +213,7 @@ SearchDropdown.propTypes = {
   noResult: PropTypes.string,
   error: PropTypes.bool,
   minLength: PropTypes.number,
-  debounce: PropTypes.number,
+  debounce: PropTypes.number
 };
 
 export default SearchDropdown;

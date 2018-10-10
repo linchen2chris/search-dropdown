@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import _ from 'lodash';
+import debounce from 'lodash/debounce';
 
 const optionHeight = 72;
 class SearchDropdown extends Component {
@@ -14,7 +14,7 @@ class SearchDropdown extends Component {
       activeIndex: -1,
       showOptions: false
     };
-    this.debounceFetch = _.debounce(this.fetchResult, props.debounce);
+    this.debounceFetch = debounce(this.fetchResult, props.debounce);
   }
 
   async fetchResult(value) {

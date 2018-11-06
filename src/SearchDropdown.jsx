@@ -83,10 +83,6 @@ class SearchDropdown extends Component {
     this.props.onSelect(option);
   }
   onBlur() {
-    if (this.dropdown && document.activeElement.isEqualNode(this.dropdown)) {
-      this.input.focus();
-      return;
-    }
     setTimeout(() => {
       this.setState({ showOptions: false, activeIndex: -1 });
     }, 200);

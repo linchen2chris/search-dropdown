@@ -1,6 +1,6 @@
-import PropTypes from 'prop-types';
-import React, { Component } from 'react';
-import debounce from 'lodash/debounce';
+import PropTypes from "prop-types";
+import React, { Component } from "react";
+import debounce from "lodash/debounce";
 
 const optionHeight = 72;
 class SearchDropdown extends Component {
@@ -28,7 +28,7 @@ class SearchDropdown extends Component {
       });
     } catch (err) {
       this.setState({
-        filteredOptions: ['search error'],
+        filteredOptions: ["search error"],
         showOptions: true
       });
     }
@@ -37,8 +37,8 @@ class SearchDropdown extends Component {
   filterResult(value) {
     const filteredOptions = this.state.options.filter(
       option =>
-        (typeof option === 'string' ? option : option.label).match(
-          new RegExp(value, 'i')
+        (typeof option === "string" ? option : option.label).match(
+          new RegExp(value, "i")
         ) !== null
     );
     if (filteredOptions.length === 0) {
@@ -83,6 +83,10 @@ class SearchDropdown extends Component {
     this.props.onSelect(option);
   }
   onBlur() {
+    if (this.dropdown && document.activeElement.isEqualNode(this.dropdown)) {
+      this.input.focus();
+      return;
+    }
     setTimeout(() => {
       this.setState({ showOptions: false, activeIndex: -1 });
     }, 200);
@@ -143,7 +147,7 @@ class SearchDropdown extends Component {
   }
   highlight(option, keyword) {
     return option !== this.props.noResults
-      ? option.replace(new RegExp(keyword, 'igm'), '<strong>$&</strong>')
+      ? option.replace(new RegExp(keyword, "igm"), "<strong>$&</strong>")
       : option;
   }
 
@@ -151,12 +155,12 @@ class SearchDropdown extends Component {
     const { classes, error } = this.props;
     return (
       <div
-        className={`${classes.root} ${error ? classes.error : ''}`}
+        className={`${classes.root} ${error ? classes.error : ""}`}
         onBlur={() => this.onBlur()}
       >
         <input
           id={this.props.id}
-          className={`${classes.input} ${error ? classes.error : ''}`}
+          className={`${classes.input} ${error ? classes.error : ""}`}
           name={this.props.name}
           type="text"
           value={this.props.value}
@@ -188,7 +192,7 @@ class SearchDropdown extends Component {
                     className={classes.label}
                     dangerouslySetInnerHTML={{
                       __html: this.highlight(
-                        typeof option === 'string' ? option : option.label,
+                        typeof option === "string" ? option : option.label,
                         this.props.value.trim()
                       )
                     }}

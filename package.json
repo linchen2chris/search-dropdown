@@ -1,6 +1,6 @@
 {
   "name": "search-dropdown",
-  "version": "1.0.17",
+  "version": "1.0.18",
   "description": "search dropdown, support all browsers using react",
   "main": "index.js",
   "scripts": {

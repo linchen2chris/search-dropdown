@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/linchen2chris/search-dropdown#readme",
   "dependencies": {
+    "lodash.debounce": "^4.0.8",
     "prop-types": "^15.6.1",
     "react": "^16.4.2"
   },
@@ -32,7 +33,6 @@
     "babel-cli": "^6.26.0",
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-env": "^1.7.0",
-    "babel-preset-react": "^6.24.1",
-    "lodash": "^4.17.10"
+    "babel-preset-react": "^6.24.1"
   }
 }
